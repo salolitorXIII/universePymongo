@@ -1,56 +1,99 @@
-import sys
-from PyQt5.QtWidgets import QApplication, QMainWindow, QListWidget, QStackedWidget
-from pymongo import MongoClient
+from pymongo.mongo_client import MongoClient
+from pymongo.server_api import ServerApi
+from pprint import pprint
 
-class MainWindow(QMainWindow):
-    def __init__(self, parent=None):
-        super(MainWindow, self).__init__(parent)
-        self.setWindowTitle("Astronomía")
 
-        self.stack = QStackedWidget()
+def cargar_datos(coleccion):
+    uri = "mongodb+srv://admin:admin@universbd.dxuaa8n.mongodb.net/?retryWrites=true&w=majority"
+    client = MongoClient(uri)
+    db = client['universo_db']
+    result = db[coleccion].find()
 
-        self.galaxias = QListWidget()
-        self.cargar_datos(self.galaxias, "galaxias")
-        self.galaxias.itemClicked.connect(self.mostrar_sistemas_solares)
+    
+    if result == None:
+        print('No se han encontrado resultados')
+    else:
+        print('\nRESULTADOS:')
+        for x in result:
+            print('\t' + x['name'])
 
-        self.stack.addWidget(self.galaxias)
 
-        self.setCentralWidget(self.stack)
+# # # # # # # # # # # # # # #
+# |--galaxias               #
+#   |-- sistemas solares    #
+#     |-- estrellas         #
+#     |-- planetas          #
+#       |-- lunas           #
+# # # # # # # # # # # # # # #
 
-    def cargar_datos(self, widget, coleccion):
-        uri = "mongodb+srv://usuario:contraseña@cluster.mongodb.net/test?retryWrites=true&w=majority"
-        client = MongoClient(uri)
-        db = client.get_database('nombre_de_tu_base_de_datos')
-        datos = db[coleccion].find()
-        for dato in datos:
-            widget.addItem(dato['name'])
+# |--galaxias               
+def mostrar_galaxias():
+    cargar_datos("galaxies")
 
-    def mostrar_sistemas_solares(self):
-        self.sistemas_solares = QListWidget()
-        self.cargar_datos(self.sistemas_solares, "solar_systems")
-        self.sistemas_solares.itemClicked.connect(self.mostrar_estrellas_planetas)
 
-        self.stack.addWidget(self.sistemas_solares)
-        self.stack.setCurrentWidget(self.sistemas_solares)
+def selecionar_galaxia():
+    mostrar_galaxias()
+    galaxia = input('->> ')
 
-    def mostrar_estrellas_planetas(self):
-        self.estrellas_planetas = QListWidget()
-        self.cargar_datos(self.estrellas_planetas, "stars")
-        self.cargar_datos(self.estrellas_planetas, "planets")
-        self.estrellas_planetas.itemClicked.connect(self.mostrar_lunas)
+    print('\nGALAXIA: ' + galaxia)
+    print('/=========================\\')
+    print('|  (1) Mostrar sistemas   |')
+    print('| (2) Seleccionar sistema |')
+    print('|   (3) Añadir sistema    |')
+    print('|  (4) Modificar galaxia  |')
+    print('|       (0) Atras         |')
+    print('\=========================/')
+    opcion = input('->> ')
 
-        self.stack.addWidget(self.estrellas_planetas)
-        self.stack.setCurrentWidget(self.estrellas_planetas)
 
-    def mostrar_lunas(self):
-        self.lunas = QListWidget()
-        self.cargar_datos(self.lunas, "moons")
+# |--galaxia
+#   |-- sistemas solares
+def mostrar_sistemas_solares():
+    cargar_datos("solar_systems")
 
-        self.stack.addWidget(self.lunas)
-        self.stack.setCurrentWidget(self.lunas)
 
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    window = MainWindow()
-    window.show()
-    sys.exit(app.exec_())
+# |--galaxia
+#   |-- sistema solar
+#     |-- estrellas
+def mostrar_estrellas():
+    cargar_datos("stars")
+
+
+# |--galaxia               
+#   |-- sistema solar         
+#     |-- planetas          
+def mostrar_planetas():
+    cargar_datos("planets")
+
+
+# |--galaxia               
+#   |-- sistema solar   
+#     |-- planeta          
+#       |-- lunas           
+def mostrar_lunas():
+    cargar_datos("moons")
+
+
+def mainMenu():
+    # MAIN MENU
+    print('\n/=========================\\')
+    print('|  (1) Mostrar galaxias   |')
+    print('| (2) Seleccionar galaxia |')
+    print('|   (3) Añadir galaxia    |')
+    print('|       (0) Salir         |')
+    print('\=========================/')
+    opcion = input('->> ')
+    if opcion == '1':
+        mostrar_galaxias()
+    if opcion == '2':
+        selecionar_galaxia()
+    if opcion == '3':
+        print('añadir galaxia')
+    if opcion == '0':
+        exit()
+    else:
+        print('\n¡¡¡ Opcion no valida !!!')
+        mainMenu()
+
+
+mainMenu()
