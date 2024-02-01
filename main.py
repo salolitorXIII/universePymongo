@@ -1,63 +1,60 @@
-from pymongo.mongo_client import MongoClient
-from pymongo.server_api import ServerApi
-from pprint import pprint
+import MongoHandler
+from Models import Galaxia, SistemaSolar, Estrella, Planeta, Luna
 
-uri = "mongodb+srv://admin:admin@universbd.dxuaa8n.mongodb.net/?retryWrites=true&w=majority"
-client = MongoClient(uri)
-db = client['universo_db']
+db_handler = MongoHandler.MongoHandler("mongodb+srv://admin:admin@universbd.dxuaa8n.mongodb.net/?retryWrites=true&w=majority")
 
-def print_nombres_documento(coleccion):
-    result = db[coleccion].find()
-
-    
-    if result == None:
-        print('\nNo se han encontrado resultados')
-    else:
-        print('\nRESULTADOS:')
-        for x in result:
-            print('\t' + x['name'])
-
-
-def existeDocumento(coleccion, name):
-    result = db[coleccion].find_one({"name": name})
-    if result == None:
-        print('\n¡¡¡ Opcion no valida !!!')
-        return False
-    else:
-        return True
-
-
-def print_documento(coleccion, name):
-    result = db[coleccion].find_one({"name": name})
-
-    
-    if result == None:
-        print('No se han encontrado resultados')
-    else:
-        print('\nRESULTADO:')
-        pprint('\t' + result)
-
-
-# # # # # # # # # # # # # # #
-# |--galaxias               #
-#   |-- sistemas solares    #
-#     |-- estrellas         #
-#     |-- planetas          #
-#       |-- lunas           #
-# # # # # # # # # # # # # # #
-
-
-# |--galaxias
-def get_galaxia():
-    print_nombres_documento("galaxies")
+def main_menu():
+    # MAIN MENU
+    print('\n/=========================\\')
+    print('| (1) Mostrar galaxias    |')
+    print('| (2) Seleccionar galaxia |')
+    print('| (3) Añadir galaxia      |')
+    print('| (0) Salir               |')
+    print('\=========================/')
     opcion = input('->> ')
-    if existeDocumento("glaxies", opcion):    
+    if opcion == '1':
+        db_handler.imprimir_nombres_documento("galaxies")
+    elif opcion == '2':
+        get_galaxia()
+    elif opcion == '3':
+        anadir_galaxia()
+    elif opcion == '0':
+        exit()
+    else:
+        print('\n¡¡¡ Opcion no valida !!!')
+        main_menu()
+
+def get_galaxia():
+    db_handler.imprimir_nombres_documento("galaxies")
+    opcion = input('->> ')
+    if db_handler.existe_documento("galaxies", opcion):
         galaxia(opcion)
     else:
-        mainMenu()
+        main_menu()
 
-def galaxia():
-    print('\nGALAXIA: ' + galaxia)
+def anadir_galaxia():
+    data = {
+        "name": input('Nombre->> '),
+        "type": input('Tipo->> '),
+        "distance_ly": int(input('Distancia al planeta Tierra->> ')),
+        "num_stars": int(input('Numero de estrellas->> ')),
+        "num_planets": int(input('Numero de planetas->> ')),
+    }
+    db_handler.anadir_documento("galaxies", data)
+    main_menu()
+
+def galaxia(galaxia_nombre):
+    galaxia_data = db_handler.get_documento("galaxies", galaxia_nombre)
+    galaxia_obj = Galaxia(
+        galaxia_data['_id'], 
+        galaxia_data['name'], 
+        galaxia_data['type'], 
+        galaxia_data['distance_ly'], 
+        galaxia_data['num_stars'], 
+        galaxia_data['num_planets']
+    )
+
+    print('\nGALAXIA: ' + galaxia_obj.name)
     print('/=========================\\')
     print('| (1) Mostrar sistemas    |')
     print('| (2) Seleccionar sistema |')
@@ -68,57 +65,17 @@ def galaxia():
     print('\=========================/')
     opcion = input('->> ')
     if opcion == '1':
-        print_nombres_documento("galaxies")
+        db_handler.imprimir_nombres_documento("sistemas_solar")
     elif opcion == '2':
-        galaxia()
+        pass  
     elif opcion == '3':
-        print('añadir galaxia')
+        print('añadir sistema')
     elif opcion == '0':
         exit()
     else:
         print('\n¡¡¡ Opcion no valida !!!')
-        
-
-# |--galaxia
-#   |-- sistemas solares
 
 
-# |--galaxia
-#   |-- sistema solar
-#     |-- estrellas
 
 
-# |--galaxia
-#   |-- sistema solar
-#     |-- planetas
-
-
-# |--galaxia
-#   |-- sistema solar
-#     |-- planeta
-#       |-- lunas
-
-
-def mainMenu():
-    # MAIN MENU
-    print('\n/=========================\\')
-    print('| (1) Mostrar galaxias    |')
-    print('| (2) Seleccionar galaxia |')
-    print('| (3) Añadir galaxia      |')
-    print('| (0) Salir               |')
-    print('\=========================/')
-    opcion = input('->> ')
-    if opcion == '1':
-        print_nombres_documento("galaxies")
-    elif opcion == '2':
-        get_galaxia()
-    elif opcion == '3':
-        print('añadir galaxia')
-    elif opcion == '0':
-        exit()
-    else:
-        print('\n¡¡¡ Opcion no valida !!!')
-        mainMenu()
-
-
-mainMenu()
+main_menu()
