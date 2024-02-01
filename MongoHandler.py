@@ -17,6 +17,18 @@ class MongoHandler:
             for x in result:
                 print('\t' + x['name'])
 
+    def imprimir_documento(self, coleccion, _id):
+        result = self.db[coleccion].find_one({"_id": _id})
+
+        if result == None:
+            print('No se han encontrado resultados')
+        else:
+            print('\nRESULTADO:')
+            pprint(result)
+
+    def get_documento(self, coleccion, name):
+        return self.db[coleccion].find_one({"name": name})
+
     def existe_documento(self, coleccion, name):
         result = self.db[coleccion].find_one({"name": name})
         if result == None:
@@ -25,18 +37,13 @@ class MongoHandler:
         else:
             return True
 
-    def imprimir_documento(self, coleccion, name):
-        result = self.db[coleccion].find_one({"name": name})
-
-        if result == None:
-            print('No se han encontrado resultados')
-        else:
-            print('\nRESULTADO:')
-            pprint('\t' + result)
-
     def anadir_documento(self, coleccion, data):
         self.db[coleccion].insert_one(data)
 
-    def get_documento(self, coleccion, name):
-        return self.db[coleccion].find_one({"name": name})
+    def modificar_documento(self, coleccion, _id, data):
+        self.db[coleccion].update_one({"_id": _id}, {"$set": data})
+
+    def eliminar_documento(self, coleccion, _id):
+        self.db[coleccion].delete_one({"_id": _id})
+
     
