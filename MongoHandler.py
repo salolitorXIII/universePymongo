@@ -7,9 +7,12 @@ class MongoHandler:
         self.client = MongoClient(uri)
         self.db = self.client['universo_db']
 
-    def imprimir_nombres_documento(self, coleccion):
-        result = self.db[coleccion].find()
-
+    def imprimir_nombres_documento(self, coleccion, filtro = {}):
+        if filtro == {}:
+            result = self.db[coleccion].find()
+        else: 
+            result = self.db[coleccion].find(filtro)
+            
         if result == None:
             print('\nNo se han encontrado resultados')
         else:
@@ -29,8 +32,12 @@ class MongoHandler:
     def get_documento(self, coleccion, name):
         return self.db[coleccion].find_one({"name": name})
 
-    def existe_documento(self, coleccion, name):
-        result = self.db[coleccion].find_one({"name": name})
+    def existe_documento(self, coleccion, name, filtro = {}):
+        if filtro == {}:
+            result = self.db[coleccion].find_one({"name": name})
+        else:
+            result = self.db[coleccion].find_one({filtro})
+            
         if result == None:
             print('\n¡¡¡ Opcion no valida !!!')
             return False

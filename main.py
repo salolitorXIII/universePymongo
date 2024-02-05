@@ -57,6 +57,7 @@ def anadir_galaxia():
 # READ GALAXIA
 def mostrar_galaxia(galaxia_obj: Galaxia):
     db_handler.imprimir_documento("galaxies", galaxia_obj._id)
+    galaxia(galaxia_obj.name)
 
 # UPDATE GALAXIA
 def modificar_galaxia(galaxia_obj: Galaxia):
@@ -102,9 +103,9 @@ def galaxia(galaxia_nombre):
     if opcion == '1':
         db_handler.imprimir_nombres_documento("sistemas_solar")
     elif opcion == '2':
-        pass  
+        get_sistema(galaxia_obj)  
     elif opcion == '3':
-        pass
+        anadir_sistema(galaxia_obj)
     elif opcion == '4':
         mostrar_galaxia(galaxia_obj)
     elif opcion == '5':
@@ -116,5 +117,95 @@ def galaxia(galaxia_nombre):
     else:
         print('\n¡¡¡ Opcion no valida !!!')
         galaxia(galaxia_nombre)
+
+
+# GET SISTEMA SOLAR
+def get_sistema(galaxia_obj: Galaxia):
+    db_handler.imprimir_nombres_documento("solar_systems", {"ref_galaxy": galaxia_obj._id})
+    opcion = input('->> ')
+    if db_handler.existe_documento("solar_systems", {"name": opcion, "ref_galaxy": galaxia_obj._id}):
+        sistema_solar(opcion, galaxia_obj)
+    else:
+        galaxia(galaxia_obj.name)
+
+# CREATE SISTEMA SOLAR
+def anadir_sistema(galaxia_obj: Galaxia):
+    data = {"name": input('Nombre->> '),
+            "galaxy":galaxia_obj.name,
+            "num_planets":{"$numberInt": input('Numero de planetas->> ')},
+            "num_stars":{"$numberInt": input('Numero de estrellas->> ')},
+            "ref_galaxy":galaxia_obj._id}
+    db_handler.anadir_documento("solar_systems", data)
+    galaxia(galaxia_obj.name)
+
+# READ SISTEMA SOLAR
+def mostrar_sistema(sistema_obj: SistemaSolar):
+    db_handler.imprimir_documento("solar_systems", sistema_obj._id)
+    sistema_solar(sistema_obj.name)
+
+# UPDATE SISTEMA SOLAR
+def modificar_sistema(sistema_obj: SistemaSolar, galaxia_obj: Galaxia):
+    db_handler.modificar_documento("solar_systems", sistema_obj._id, {"name": input('Nombre->> '),
+            "num_planets":{"$numberInt": input('Numero de planetas->> ')},
+            "num_stars":{"$numberInt": input('Numero de estrellas->> ')}
+            })
+    galaxia(galaxia_obj.name)
+
+# DELETE SISTEMA SOLAR
+def eliminar_sistema(galaxia_obj: Galaxia):
+    db_handler.eliminar_documento("galaxies", galaxia_obj._id)
+    galaxia(galaxia_obj.name)
+
+
+# Menu sistema
+def sistema_solar(sistema_nombre, galaxia_obj: Galaxia):
+    sistema_data = db_handler.get_documento("solar_systems", sistema_nombre)
+    sistema_obj = SistemaSolar(
+        sistema_data['_id'], 
+        sistema_data['name'], 
+        sistema_data['ref_galaxy']
+    )
+
+    print('\nSISTEMA: ' + sistema_obj.name)
+    print('/=========================\\')
+    print('| (1) Mostrar estrellas   |')
+    print('| (2) Mostrar planetas    |')
+    print('| (3) Seleccionar estrella|')
+    print('| (4) Seleccionar planeta |')
+    print('| (5) Añadir estrella     |')
+    print('| (6) Añadir planeta      |')
+    print('| (7) Mostrar sistema     |')
+    print('| (8) Modificar sistema   |')
+    print('| (9) Eliminar sistema    |')
+    print('| (0) Atras               |')
+    print('\=========================/')
+
+    opcion = input('->> ')
+
+    if opcion == '1':
+        db_handler.imprimir_nombres_documento("sistemas_solar")
+    elif opcion == '2':
+        get_sistema(galaxia_obj)  
+    elif opcion == '3':
+        pass
+    elif opcion == '4':
+        mostrar_galaxia(galaxia_obj)
+    elif opcion == '5':
+        modificar_galaxia(galaxia_obj)
+    elif opcion == '6':
+        eliminar_galaxia(galaxia_obj)
+    elif opcion == '7':
+        mostrar_sistema(sistema_obj)
+    elif opcion == '8':
+        modificar_sistema(sistema_obj)
+    elif opcion == '9':
+        eliminar_sistema(sistema_obj)
+    elif opcion == '0':
+        main_menu()
+    else:
+        print('\n¡¡¡ Opcion no valida !!!')
+        sistema_solar(sistema_obj.name, galaxia_obj)
+
+
 
 main_menu()
