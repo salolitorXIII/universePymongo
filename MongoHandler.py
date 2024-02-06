@@ -22,7 +22,7 @@ class MongoHandler:
                 print('\t' + x['name'])
 
     def imprimir_documento(self, coleccion, _id):
-        result = self.db[coleccion].find_one({"_id": _id})
+        result = self.db[coleccion].find_one({"_id": ObjectId(_id)})
 
         if result == None:
             print('No se han encontrado resultados')
@@ -37,9 +37,7 @@ class MongoHandler:
         if filtro == {}:
             result = self.db[coleccion].find_one({"name": name})
         else:
-            print(filtro)
             result = self.db[coleccion].find_one({"$and": [{"name": name}, filtro]})
-            print(result)
 
         if result == None:
             print('\n¡¡¡ Opcion no valida !!!')

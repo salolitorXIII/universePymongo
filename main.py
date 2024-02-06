@@ -340,14 +340,14 @@ def modificar_planeta(planeta_obj: Planeta):
         })
 
 # DELETE PLANETA
-def eliminar_planeta(estrella_obj: Estrella):
-    db_handler.eliminar_documento("stars", estrella_obj._id)
+def eliminar_planeta(planeta_obj: Planeta):
+    db_handler.eliminar_documento("planets", planeta_obj._id)
 
 # Menu planetas
 def planeta(planeta_nombre, sistema_obj: SistemaSolar):
     while True:
-        planeta_data = db_handler.get_documento("stars", planeta_nombre)
-        planeta_obj = Estrella(
+        planeta_data = db_handler.get_documento("planets", planeta_nombre)
+        planeta_obj = Planeta(
             str(planeta_data['_id']), 
             planeta_data['name'], 
             planeta_data['ref_solar_system']
@@ -366,11 +366,11 @@ def planeta(planeta_nombre, sistema_obj: SistemaSolar):
         opcion = input('->> ')
 
         if opcion == '1':
-            db_handler.imprimir_nombres_documento("stars", {"ref_solar_system": sistema_obj._id})
+            db_handler.imprimir_nombres_documento("moons", {"ref_planet": planeta_obj._id})
         elif opcion == '2':
-            pass
+            get_luna(planeta_obj)
         elif opcion == '3':
-            pass
+            anadir_luna(planeta_obj)
         elif opcion == '4':
             mostrar_planeta(planeta_obj)
         elif opcion == '5':
@@ -392,40 +392,47 @@ def planeta(planeta_nombre, sistema_obj: SistemaSolar):
 
 
 # GET LUNA
-def get_luna(sistema_obj: SistemaSolar):
-    db_handler.imprimir_nombres_documento("stars", {"ref_solar_system": sistema_obj._id})
+def get_luna(planeta_obj: Planeta):
+    db_handler.imprimir_nombres_documento("moons", {"ref_planet": planeta_obj._id})
     opcion = input('->> ')
-    if db_handler.existe_documento("stars", opcion, {"ref_solar_system": sistema_obj._id}):
-        estrella(opcion, sistema_obj)
+    if db_handler.existe_documento("moons", opcion, {"ref_planet": planeta_obj._id}):
+        lunas(opcion, planeta_obj)
     else:
-        print('\n¡¡¡ Estrella no encontrada !!!')
+        print('\n¡¡¡ Luna no encontrada !!!')
 
 # CREATE LUNA
-def anadir_luna(sistema_obj: SistemaSolar):
+def anadir_luna(planeta_obj: Planeta):
     data = {"name": input('Nombre->> '),
-            "ref_solar_system":sistema_obj._id}
-    db_handler.anadir_documento("stars", data)
+            "planet":planeta_obj.name,
+            "diameter_km": input('Diametro->> '),
+            "mass_kg": input('Masa->> '),
+            "orbital_period_days": input('Periodo orbital->> '),
+            "ref_planet":planeta_obj._id}
+    db_handler.anadir_documento("moons", data)
     
 # READ LUNA
-def mostrar_luna(estrella_obj: Estrella):
-    db_handler.imprimir_documento("stars", estrella_obj._id)
+def mostrar_luna(luna_obj: Luna):
+    db_handler.imprimir_documento("moons", luna_obj._id)
 
 # UPDATE LUNA
-def modificar_luna(estrella_obj: Estrella):
-    db_handler.modificar_documento("stars", estrella_obj._id, {"name": input('Nombre->> ')})
+def modificar_luna(luna_obj: Luna):
+    db_handler.modificar_documento("moons", luna_obj._id, {"name": input('Nombre->> '),
+            "diameter_km": input('Diametro->> '),
+            "mass_kg": input('Masa->> '),
+            "orbital_period_days": input('Periodo orbital->> ')})
 
 # DELETE LUNA
-def eliminar_luna(estrella_obj: Estrella):
-    db_handler.eliminar_documento("stars", estrella_obj._id)
+def eliminar_luna(luna_obj: Luna):
+    db_handler.eliminar_documento("moons", luna_obj._id)
 
 # Menu luna
 def lunas(luna_nombre, planeta_obj: Planeta):
     while True:
-        luna_data = db_handler.get_documento("stars", luna_nombre)
-        luna_obj = Estrella(
+        luna_data = db_handler.get_documento("moons", luna_nombre)
+        luna_obj = Luna(
             str(luna_data['_id']), 
             luna_data['name'], 
-            luna_data['ref_solar_system']
+            luna_data['ref_planet']
         )
 
         print('\nLUNA: ' + luna_obj.name)
